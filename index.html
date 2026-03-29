@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CourseVault — Study smarter. Ace every exam.</title>
+<meta name="description" content="CourseVault is an AI-powered study platform. Turn your PDFs into quizzes, flashcards, summaries, and mind maps. Built for students who want to ace every exam. Launching Q2 2026."/>
+<meta name="keywords" content="CourseVault, AI study tool, PDF quiz generator, AI flashcards, study platform, exam preparation, AI summaries, mind maps, PDF chat, student productivity"/>
+<meta name="robots" content="index, follow"/>
+<meta name="author" content="CourseVault"/>
+<link rel="canonical" href="https://coursevaultai.app/"/>
+
+
+<link rel="icon" type="image/png" href="logo.png"/>
+<link rel="apple-touch-icon" href="logo.png"/>
+
+<!-- Open Graph -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://coursevaultai.app/"/>
+<meta property="og:title" content="CourseVault — Study smarter. Ace every exam."/>
+<meta property="og:description" content="AI-powered study platform. Turn your PDFs into quizzes, flashcards, summaries and mind maps. Launching Q2 2026."/>
+<meta property="og:image" content="https://coursevaultai.app/logo.png"/>
+<meta property="og:site_name" content="CourseVault"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@coursevaultapp"/>
+<meta name="twitter:title" content="CourseVault — Study smarter. Ace every exam."/>
+<meta name="twitter:description" content="AI study tools launching Q2 2026. Join the waitlist and be first."/>
+<meta name="twitter:image" content="https://coursevaultai.app/logo.png"/>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CourseVault","url":"https://coursevaultai.app","description":"AI-powered study platform that turns PDFs into quizzes, flashcards, summaries and mind maps.","applicationCategory":"EducationalApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"CourseVault","url":"https://coursevaultai.app","sameAs":["https://x.com/coursevaultapp","https://instagram.com/coursevault.app","https://tiktok.com/@coursevaultapp"]}}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0b13;--accent:#7c3aed;
+  --border:rgba(255,255,255,0.07);
+  --muted:#52527a;--sub:#8080a0;
+  --fh:'Bricolage Grotesque',sans-serif;
+  --fb:'DM Sans',sans-serif;
+}
+html,body{height:100%;overflow:hidden}
+body{background:#000;color:#fff;font-family:var(--fb);-webkit-font-smoothing:antialiased;position:relative}
+
+/* ── GLOBE CANVAS ── */
+#globe-canvas{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+}
+
+/* ── TILES ── */
+.tiles{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.tc{position:absolute;top:0;bottom:0;display:flex;flex-direction:column;gap:2px}
+.tc-l1{left:0;width:clamp(36px,4vw,72px)}
+.tc-l2{left:calc(clamp(36px,4vw,72px) + 2px);width:clamp(62px,7.5vw,130px)}
+.tc-r2{right:calc(clamp(36px,4vw,72px) + 2px);width:clamp(62px,7.5vw,130px)}
+.tc-r1{right:0;width:clamp(36px,4vw,72px)}
+.tile{flex:1;border-radius:1px}
+.tc-l1 .tile:nth-child(odd){background:rgba(255,255,255,0.022)}
+.tc-l1 .tile:nth-child(even){background:rgba(255,255,255,0.013)}
+.tc-l2 .tile:nth-child(odd){background:rgba(255,255,255,0.012)}
+.tc-l2 .tile:nth-child(even){background:rgba(255,255,255,0.007)}
+.tc-r2 .tile:nth-child(odd){background:rgba(255,255,255,0.012)}
+.tc-r2 .tile:nth-child(even){background:rgba(255,255,255,0.007)}
+.tc-r1 .tile:nth-child(odd){background:rgba(255,255,255,0.022)}
+.tc-r1 .tile:nth-child(even){background:rgba(255,255,255,0.013)}
+
+/* ── NAV ── */
+.nav-wrap{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 20px}
+.nav{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:8px 16px 8px 12px;border-radius:22px;border:1px solid rgba(255,255,255,0.09);background:rgba(0,0,0,0.55);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-logo img{width:28px;height:28px;object-fit:contain;border-radius:6px}
+.nav-logo-name{font-family:var(--fh);font-size:.9rem;font-weight:800;color:#fff;letter-spacing:-.01em}
+.nav-badge{font-family:var(--fh);font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 13px;border-radius:20px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#c4b5fd}
+
+/* ── MAIN ── */
+main{position:relative;z-index:2;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;overflow:hidden}
+
+/* ── CHAR REVEAL ── */
+.char{display:inline-block;opacity:0;transform:translateY(28px) rotateX(18deg);transform-origin:bottom center;animation:charIn .45s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes charIn{to{opacity:1;transform:translateY(0) rotateX(0deg)}}
+
+/* ── FADE UP ── */
+.fu{opacity:0;animation:fadeUp .6s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HEADLINE ── */
+.hero-h1{
+  font-family:var(--fh);
+  font-size:clamp(2.8rem,9vw,7rem);
+  font-weight:800;
+  line-height:1.02;
+  letter-spacing:.005em;
+  margin-bottom:22px;
+  position:relative;z-index:3;
+  /* Subtle text shadow to pop against globe */
+  text-shadow:0 2px 40px rgba(0,0,0,0.9),0 0 80px rgba(0,0,0,0.6);
+}
+
+/* ── SUB ── */
+.hero-sub{
+  font-size:clamp(13.5px,2vw,16.5px);
+  color:rgba(255,255,255,0.55);
+  max-width:400px;
+  line-height:1.8;
+  margin:0 auto 34px;
+  position:relative;z-index:3;
+  text-shadow:0 1px 20px rgba(0,0,0,0.8);
+}
+
+/* ── LIVE BADGE ── */
+.live-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:40px;padding:6px 16px;
+  margin-bottom:28px;position:relative;z-index:3;
+  backdrop-filter:blur(10px);
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#7c3aed;box-shadow:0 0 10px rgba(124,58,237,1);animation:blink 2.2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+.live-text{font-family:var(--fh);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#c4b5fd}
+.live-num{color:#fff;font-weight:800}
+
+/* ── CTA BUTTON ── */
+.cta-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--accent);color:#fff;
+  font-family:var(--fh);font-size:15px;font-weight:800;
+  padding:15px 34px;border-radius:14px;
+  text-decoration:none;position:relative;z-index:3;
+  transition:transform .18s,box-shadow .18s,opacity .18s;
+  box-shadow:0 0 0 0 rgba(124,58,237,0);overflow:hidden;
+}
+.cta-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.13),transparent);border-radius:inherit}
+.cta-btn:hover{transform:translateY(-3px);box-shadow:0 14px 44px rgba(124,58,237,0.5);opacity:.92}
+.cta-btn:active{transform:translateY(-1px)}
+.cta-btn::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:skewX(-20deg);animation:shimmer 3.5s ease-in-out 3s infinite}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+.arr{width:16px;height:16px;transition:transform .2s}
+.cta-btn:hover .arr{transform:translateX(4px)}
+
+/* ── PILL TAGS ── */
+.pills{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:30px;position:relative;z-index:3}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:5px 11px;backdrop-filter:blur(8px)}
+.pill-dot{width:4px;height:4px;border-radius:50%;background:#7c3aed}
+
+/* ── SOCIALS ── */
+.socials{display:flex;gap:9px;justify-content:center;margin-top:26px;position:relative;z-index:3}
+.soc{width:33px;height:33px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.35);text-decoration:none;transition:all .2s;backdrop-filter:blur(8px);background:rgba(0,0,0,0.3)}
+.soc:hover{color:#fff;border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.07)}
+
+/* ── FOOTER ── */
+.foot{position:fixed;bottom:0;left:0;right:0;z-index:100;text-align:center;padding:12px 20px;font-size:11px;color:rgba(255,255,255,0.25);background:linear-gradient(to top,rgba(0,0,0,0.7),transparent)}
+
+/* ── MOBILE ── */
+@media(max-width:520px){
+  .tc-l2,.tc-r2{display:none}
+  .hero-h1{font-size:clamp(2.2rem,11.5vw,3.6rem)}
+  .cta-btn{font-size:14px;padding:13px 26px}
+  .pills{gap:5px}
+  .pill{font-size:9.5px;padding:4px 9px}
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBE CANVAS (Three.js renders here) -->
+<canvas id="globe-canvas"></canvas>
+
+<!-- TILES -->
+<div class="tiles">
+  <div class="tc tc-l1" id="tcl1"></div>
+  <div class="tc tc-l2" id="tcl2"></div>
+  <div class="tc tc-r2" id="tcr2"></div>
+  <div class="tc tc-r1" id="tcr1"></div>
+</div>
+
+<!-- NAV -->
+<div class="nav-wrap">
+  <div class="nav">
+    <a class="nav-logo" href="/">
+      <img src="logo.png" alt="CourseVault logo"/>
+      <span class="nav-logo-name">CourseVault</span>
+    </a>
+    <div class="nav-badge">Coming Q2 2026</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main>
+
+  <div class="live-badge fu" style="animation-delay:.3s">
+    <div class="live-dot"></div>
+    <div class="live-text"><span class="live-num" id="cnt">1,247</span>&nbsp; students on the waitlist</div>
+  </div>
+
+  <h1 class="hero-h1">
+    <span id="l1" style="display:block;color:#fff"></span>
+    <span id="l2" style="display:block;color:#7c3aed"></span>
+  </h1>
+
+  <p class="hero-sub fu" style="animation-delay:1.85s">
+    Turn your PDFs into AI quizzes, flashcards,<br/>summaries and mind maps. Built to help you win.
+  </p>
+
+  <div class="pills fu" style="animation-delay:2s">
+    <div class="pill"><div class="pill-dot"></div>AI Quizzes</div>
+    <div class="pill"><div class="pill-dot"></div>Smart Flashcards</div>
+    <div class="pill"><div class="pill-dot"></div>PDF Chat</div>
+    <div class="pill"><div class="pill-dot"></div>Exam Mode</div>
+    <div class="pill"><div class="pill-dot"></div>Mind Maps</div>
+    <div class="pill"><div class="pill-dot"></div>Audio Summaries</div>
+  </div>
+
+  <div class="fu" style="animation-delay:2.14s">
+    <a class="cta-btn" href="https://coursevaultapp-waitlist.vercel.app/" target="_blank" rel="noopener">
+      Join the Waitlist — It's Free
+      <svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <div class="socials fu" style="animation-delay:2.28s">
+    <a class="soc" href="https://x.com/coursevaultapp" target="_blank" rel="noopener" aria-label="X / Twitter">
+      <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a class="soc" href="https://instagram.com/coursevault.app" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <a class="soc" href="https://tiktok.com/@coursevaultapp" target="_blank" rel="noopener" aria-label="TikTok">
+      <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+    </a>
+    <a class="soc" href="https://linkedin.com/company/coursevault" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+  </div>
+
+</main>
+
+<div class="foot">© 2026 CourseVault · Study smarter. Ace every exam.</div>
+
+<script>
+/* ── Tile columns ── */
+['tcl1','tcl2','tcr2','tcr1'].forEach(function(id,ci){
+  var el=document.getElementById(id),n=[10,8,8,10][ci];
+  for(var i=0;i<n;i++){var d=document.createElement('div');d.className='tile';el.appendChild(d);}
+});
+
+/* ── Waitlist counter (seeds + grows on each visit) ── */
+var base=1247;
+try{
+  var stored=localStorage.getItem('cv_wl');
+  if(!stored){stored=base+Math.floor(Math.random()*12);localStorage.setItem('cv_wl',stored);}
+  document.getElementById('cnt').textContent=Number(stored).toLocaleString();
+}catch(e){}
+
+/* ── Char reveal ── */
+function revealText(id,text,t0,col){
+  var el=document.getElementById(id);
+  text.split('').forEach(function(ch,i){
+    var s=document.createElement('span');
+    s.className='char';
+    s.style.animationDelay=(t0+i*0.038)+'s';
+    s.style.color=col;
+    s.textContent=ch===' '?'\u00a0':ch;
+    el.appendChild(s);
+  });
+}
+revealText('l1','Study smarter.',0.32,'#fff');
+revealText('l2','Ace every exam.',0.98,'#7c3aed');
+
+
+var script=document.createElement('script');
+script.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+script.onload=function(){
+
+  var W=window.innerWidth,H=window.innerHeight;
+  var canvas=document.getElementById('globe-canvas');
+  canvas.width=W;canvas.height=H;
+
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(45,W/H,0.1,1000);
+  camera.position.z=2.5;
+
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(W,H);
+  renderer.setClearColor(0x000000,0);
+
+  var globe=new THREE.Group();
+  scene.add(globe);
+
+  var loader=new THREE.TextureLoader();
+  loader.crossOrigin='anonymous';
+
+  var BASE='https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/';
+
+  /* ── Load Earth texture + normal map ── */
+  var earthTex  =loader.load(BASE+'earth_atmos_2048.jpg');
+  var normalTex =loader.load(BASE+'earth_normal_2048.jpg');
+  var specTex   =loader.load(BASE+'earth_specular_2048.jpg');
+  var cloudTex  =loader.load(BASE+'earth_clouds_1024.png');
+
+  /* ── Earth sphere ── */
+  var earthGeo=new THREE.SphereGeometry(1,64,32);
+  var earthMat=new THREE.MeshPhongMaterial({
+    map:earthTex,
+    normalMap:normalTex,
+    normalScale:new THREE.Vector2(0.85,0.85),
+    specularMap:specTex,
+    specular:new THREE.Color(0x2266aa),
+    shininess:18,
+  });
+  var earthMesh=new THREE.Mesh(earthGeo,earthMat);
+  globe.add(earthMesh);
+
+  /* ── Cloud layer ── */
+  var cloudGeo=new THREE.SphereGeometry(1.008,64,32);
+  var cloudMat=new THREE.MeshPhongMaterial({
+    map:cloudTex,
+    transparent:true,
+    opacity:0.42,
+    depthWrite:false,
+  });
+  var cloudMesh=new THREE.Mesh(cloudGeo,cloudMat);
+  globe.add(cloudMesh);
+
+  /* ── Atmosphere glow ── */
+  function addAtmo(radius,opacity,color,side){
+    var g=new THREE.SphereGeometry(radius,64,32);
+    var m=new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:opacity,side:side||THREE.BackSide});
+    scene.add(new THREE.Mesh(g,m));
+  }
+  addAtmo(1.035,0.16,0x4488ff,THREE.BackSide);
+  addAtmo(1.08, 0.09,0x3366cc,THREE.BackSide);
+  addAtmo(1.18, 0.04,0x224488,THREE.BackSide);
+  addAtmo(1.30, 0.018,0x112244,THREE.BackSide);
+
+  /* ── Rim / fresnel glow on earth surface ── */
+  var rimGeo=new THREE.SphereGeometry(1.01,64,32);
+  var rimMat=new THREE.MeshBasicMaterial({color:0x3399ff,transparent:true,opacity:0.06,side:THREE.FrontSide});
+  globe.add(new THREE.Mesh(rimGeo,rimMat));
+
+  /* ── Lights ── */
+  /* Sun direction — coming from top-right like real daylight */
+  var sun=new THREE.DirectionalLight(0xffffff,1.1);
+  sun.position.set(5,3,5);
+  scene.add(sun);
+
+  /* Dim fill from left (simulates earthshine) */
+  var fill=new THREE.DirectionalLight(0x112244,0.2);
+  fill.position.set(-5,-2,-3);
+  scene.add(fill);
+
+  /* Ambient so dark side isn't pure black */
+  scene.add(new THREE.AmbientLight(0x111122,0.4));
+
+  /* ── Starfield ── */
+  var starPos=new Float32Array(3000*3);
+  for(var i=0;i<3000;i++){
+    var r=80+Math.random()*120;
+    var theta=Math.random()*Math.PI*2;
+    var phi=Math.acos(2*Math.random()-1);
+    starPos[i*3]=r*Math.sin(phi)*Math.cos(theta);
+    starPos[i*3+1]=r*Math.sin(phi)*Math.sin(theta);
+    starPos[i*3+2]=r*Math.cos(phi);
+  }
+  var starGeo=new THREE.BufferGeometry();
+  starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));
+  var starMat=new THREE.PointsMaterial({color:0xffffff,size:0.25,transparent:true,opacity:0.55});
+  scene.add(new THREE.Points(starGeo,starMat));
+
+  /* ── Initial tilt (show Africa/Europe like MyCampusPal) ── */
+  globe.rotation.x=0.3;
+  globe.rotation.y=0.5; /* Africa-facing start */
+
+  /* ── Responsive resize ── */
+  function onResize(){
+    W=window.innerWidth;H=window.innerHeight;
+    camera.aspect=W/H;camera.updateProjectionMatrix();
+    renderer.setSize(W,H);
+    var sc=W<520?0.62:W<768?0.79:1;
+    globe.scale.setScalar(sc);
+  }
+  window.addEventListener('resize',onResize);onResize();
+
+  /* ── Mouse parallax ── */
+  var mx=0,my=0;
+  window.addEventListener('mousemove',function(e){
+    mx=(e.clientX/W-0.5)*0.28;
+    my=(e.clientY/H-0.5)*0.18;
+  });
+
+  /* ── Animate ── */
+  function animate(){
+    requestAnimationFrame(animate);
+    earthMesh.rotation.y+=0.0014;
+    cloudMesh.rotation.y+=0.0018; /* clouds drift slightly faster */
+    globe.rotation.x+=(0.3+my-globe.rotation.x)*0.04;
+    globe.rotation.z+=(-0.02+mx-globe.rotation.z)*0.04;
+    renderer.render(scene,camera);
+  }
+  animate();
+
+};
+document.head.appendChild(script);
+</script>
+
+</body>
+</html>
