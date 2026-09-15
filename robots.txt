@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /settings.html
+Disallow: /main.js
+Disallow: /styles.css
 
 Sitemap: https://coursevaultai.app/sitemap.xml
