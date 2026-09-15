@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>CourseVault — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500&family=Orbitron:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--accent:#7c3aed;--fh:'Bricolage Grotesque',sans-serif;--fb:'DM Sans',sans-serif;--fd:'Orbitron',sans-serif}
+html,body{height:100%}
+body{
+  background:#000;color:#fff;font-family:var(--fb);-webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  background-image:radial-gradient(circle at 50% 0%,rgba(124,58,237,0.14),transparent 60%);
+}
+.card{width:100%;max-width:380px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);padding:30px 26px;}
+.logo-row{display:flex;align-items:center;gap:9px;margin-bottom:22px}
+.logo-row img{width:28px;height:28px;border-radius:6px;object-fit:contain}
+.logo-row span{font-family:var(--fh);font-weight:800;font-size:.95rem}
+h1{font-family:var(--fh);font-size:1.05rem;font-weight:800;margin-bottom:4px}
+.sub{font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:22px;line-height:1.5}
+
+/* passcode gate */
+#gate-view input{
+  width:100%;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.05);color:#fff;font-family:var(--fd);font-size:1.1rem;
+  letter-spacing:.35em;text-align:center;margin-bottom:12px;
+}
+#gate-view input:focus{outline:none;border-color:var(--accent)}
+.err{font-size:11.5px;color:#f87171;min-height:16px;margin-bottom:10px;text-align:center}
+.btn{
+  width:100%;font-family:var(--fh);font-weight:800;font-size:13px;letter-spacing:.02em;
+  padding:13px 0;border-radius:12px;border:1px solid var(--accent);background:var(--accent);color:#fff;
+  cursor:pointer;transition:opacity .15s,transform .15s;
+}
+.btn:hover{opacity:.9}
+.btn:active{transform:translateY(1px)}
+.btn.secondary{background:transparent;color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.14);margin-top:8px}
+.btn.secondary:hover{color:#fff;background:rgba(255,255,255,0.05)}
+
+/* settings form */
+#panel-view{display:none}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.field input[type="datetime-local"]{
+  width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.05);color:#fff;font-family:var(--fb);font-size:13.5px;color-scheme:dark;
+}
+.current-box{
+  border:1px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.08);border-radius:12px;
+  padding:12px 14px;margin-bottom:18px;
+}
+.current-box .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#c4b5fd;font-weight:700;margin-bottom:4px}
+.current-box .val{font-family:var(--fd);font-size:14px;font-weight:700}
+.saved-msg{font-size:11.5px;color:#86efac;min-height:16px;margin-top:10px;text-align:center}
+.note{font-size:10.5px;color:rgba(255,255,255,0.3);line-height:1.6;margin-top:18px}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-row">
+    <img src="logo.png" alt="CourseVault logo"/>
+    <span>CourseVault</span>
+  </div>
+
+  <!-- PASSCODE GATE -->
+  <div id="gate-view">
+    <h1>Restricted access</h1>
+    <div class="sub">Enter the passcode to manage the launch countdown.</div>
+    <input type="password" id="passcode-input" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus/>
+    <div class="err" id="gate-error"></div>
+    <button class="btn" id="unlock-btn">Unlock</button>
+  </div>
+
+  <!-- SETTINGS PANEL (shown after correct passcode) -->
+  <div id="panel-view">
+    <h1>Launch countdown</h1>
+    <div class="sub">This date drives the live countdown on the homepage.</div>
+
+    <div class="current-box">
+      <div class="lbl">Currently set to</div>
+      <div class="val" id="current-val">—</div>
+    </div>
+
+    <div class="field">
+      <label for="launch-input">New launch date &amp; time</label>
+      <input type="datetime-local" id="launch-input"/>
+    </div>
+
+    <button class="btn" id="save-btn">Save changes</button>
+    <button class="btn secondary" id="lock-btn">Lock again</button>
+    <div class="saved-msg" id="saved-msg"></div>
+
+    <div class="note">Saved to this browser's local storage under the key <code>cv_launch_target</code>. The homepage reads it on load. For the date to update for every visitor (not just this browser), have your backend serve this value instead and read it from there.</div>
+  </div>
+</div>
+
+<script>
+var PASSCODE = '002160';
+var STORAGE_KEY = 'cv_launch_target';
+var DEFAULT_LAUNCH = '2026-10-20T00:00:00';
+
+var gateView = document.getElementById('gate-view');
+var panelView = document.getElementById('panel-view');
+var passInput = document.getElementById('passcode-input');
+var gateError = document.getElementById('gate-error');
+var unlockBtn = document.getElementById('unlock-btn');
+var launchInput = document.getElementById('launch-input');
+var currentVal = document.getElementById('current-val');
+var saveBtn = document.getElementById('save-btn');
+var lockBtn = document.getElementById('lock-btn');
+var savedMsg = document.getElementById('saved-msg');
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+function toLocalInputValue(date){
+  return date.getFullYear()+'-'+pad2(date.getMonth()+1)+'-'+pad2(date.getDate())+'T'+pad2(date.getHours())+':'+pad2(date.getMinutes());
+}
+
+function getStoredDate(){
+  try{
+    var stored = localStorage.getItem(STORAGE_KEY);
+    if (stored){
+      var d = new Date(stored);
+      if (!isNaN(d.getTime())) return d;
+    }
+  }catch(e){}
+  return new Date(DEFAULT_LAUNCH);
+}
+
+function formatDisplay(date){
+  return date.toLocaleString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function showPanel(){
+  gateView.style.display = 'none';
+  panelView.style.display = 'block';
+  var d = getStoredDate();
+  launchInput.value = toLocalInputValue(d);
+  currentVal.textContent = formatDisplay(d);
+}
+
+function tryUnlock(){
+  if (passInput.value === PASSCODE){
+    gateError.textContent = '';
+    showPanel();
+  } else {
+    gateError.textContent = 'Incorrect passcode. Try again.';
+    passInput.value = '';
+    passInput.focus();
+  }
+}
+
+unlockBtn.addEventListener('click', tryUnlock);
+passInput.addEventListener('keydown', function(e){
+  if (e.key === 'Enter') tryUnlock();
+});
+
+saveBtn.addEventListener('click', function(){
+  var val = launchInput.value;
+  if (!val){ return; }
+  var next = new Date(val);
+  if (isNaN(next.getTime())){ return; }
+  try{
+    localStorage.setItem(STORAGE_KEY, next.toISOString());
+  }catch(e){}
+  currentVal.textContent = formatDisplay(next);
+  savedMsg.textContent = 'Saved — the homepage countdown will pick this up on its next tick.';
+  setTimeout(function(){ savedMsg.textContent = ''; }, 4000);
+});
+
+lockBtn.addEventListener('click', function(){
+  panelView.style.display = 'none';
+  gateView.style.display = 'block';
+  passInput.value = '';
+  gateError.textContent = '';
+  passInput.focus();
+});
+</script>
+
+</body>
+</html>
