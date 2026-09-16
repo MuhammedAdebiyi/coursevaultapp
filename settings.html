@@ -96,13 +96,12 @@ h1{font-family:var(--fh);font-size:1.05rem;font-weight:800;margin-bottom:4px}
     <button class="btn secondary" id="lock-btn">Lock again</button>
     <div class="saved-msg" id="saved-msg"></div>
 
-    <div class="note">Saved to this browser's local storage under the key <code>cv_launch_target</code>. The homepage reads it on load. For the date to update for every visitor (not just this browser), have your backend serve this value instead and read it from there.</div>
+    <div class="note">Changes update the countdown for <strong>all visitors</strong> instantly via the backend. The homepage fetches the date from the server on load.</div>
   </div>
 </div>
 
 <script>
 var PASSCODE = '002160';
-var STORAGE_KEY = 'cv_launch_target';
 var DEFAULT_LAUNCH = '2026-10-20T00:00:00';
 
 var gateView = document.getElementById('gate-view');
@@ -122,27 +121,32 @@ function toLocalInputValue(date){
   return date.getFullYear()+'-'+pad2(date.getMonth()+1)+'-'+pad2(date.getDate())+'T'+pad2(date.getHours())+':'+pad2(date.getMinutes());
 }
 
-function getStoredDate(){
-  try{
-    var stored = localStorage.getItem(STORAGE_KEY);
-    if (stored){
-      var d = new Date(stored);
-      if (!isNaN(d.getTime())) return d;
-    }
-  }catch(e){}
-  return new Date(DEFAULT_LAUNCH);
-}
-
 function formatDisplay(date){
   return date.toLocaleString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function fetchCurrentDate(){
+  return fetch('/api/countdown')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data.date){
+        var d = new Date(data.date);
+        if (!isNaN(d.getTime())) return d;
+      }
+      return new Date(DEFAULT_LAUNCH);
+    })
+    .catch(function(){ return new Date(DEFAULT_LAUNCH); });
 }
 
 function showPanel(){
   gateView.style.display = 'none';
   panelView.style.display = 'block';
-  var d = getStoredDate();
-  launchInput.value = toLocalInputValue(d);
-  currentVal.textContent = formatDisplay(d);
+  savedMsg.textContent = 'Loading current date...';
+  fetchCurrentDate().then(function(d){
+    launchInput.value = toLocalInputValue(d);
+    currentVal.textContent = formatDisplay(d);
+    savedMsg.textContent = '';
+  });
 }
 
 function tryUnlock(){
@@ -166,12 +170,34 @@ saveBtn.addEventListener('click', function(){
   if (!val){ return; }
   var next = new Date(val);
   if (isNaN(next.getTime())){ return; }
-  try{
-    localStorage.setItem(STORAGE_KEY, next.toISOString());
-  }catch(e){}
-  currentVal.textContent = formatDisplay(next);
-  savedMsg.textContent = 'Saved — the homepage countdown will pick this up on its next tick.';
-  setTimeout(function(){ savedMsg.textContent = ''; }, 4000);
+
+  saveBtn.textContent = 'Saving...';
+  saveBtn.disabled = true;
+
+  fetch('/api/countdown', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ passcode: PASSCODE, date: next.toISOString() })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data.success){
+      currentVal.textContent = formatDisplay(next);
+      savedMsg.textContent = 'Saved — all visitors will see the updated countdown.';
+    } else {
+      savedMsg.textContent = 'Error: ' + (data.error || 'Failed to save');
+      savedMsg.style.color = '#f87171';
+    }
+  })
+  .catch(function(){
+    savedMsg.textContent = 'Error: Could not reach server. Try again.';
+    savedMsg.style.color = '#f87171';
+  })
+  .finally(function(){
+    saveBtn.textContent = 'Save changes';
+    saveBtn.disabled = false;
+    setTimeout(function(){ savedMsg.textContent = ''; savedMsg.style.color = ''; }, 4000);
+  });
 });
 
 lockBtn.addEventListener('click', function(){

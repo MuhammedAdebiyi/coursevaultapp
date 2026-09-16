@@ -14,27 +14,24 @@ try{
 
 /* ────────────────────────────────────────────
    COUNTDOWN
-   Reads the launch date from localStorage key
-   "cv_launch_target" (set via settings.html).
-   Falls back to October 20, 2026 if nothing is set.
+   Fetches the launch date from /api/countdown (shared across all visitors).
+   Falls back to localStorage, then to October 20, 2026.
 ────────────────────────────────────────────*/
 var DEFAULT_LAUNCH = '2026-10-20T00:00:00';
+var countdownDate = null;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 
-function getLaunchDate(){
-  try{
-    var stored = localStorage.getItem('cv_launch_target');
-    if (stored){
-      var d = new Date(stored);
-      if (!isNaN(d.getTime())) return d;
-    }
-  }catch(e){}
-  return new Date(DEFAULT_LAUNCH);
+function resolveDate(stored){
+  if (stored){
+    var d = new Date(stored);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
 }
 
 function updateCountdown(){
-  var target = getLaunchDate();
+  var target = countdownDate || new Date(DEFAULT_LAUNCH);
   var diff = target.getTime() - Date.now();
   if (diff < 0) diff = 0;
   var d = Math.floor(diff / 86400000);
@@ -46,8 +43,24 @@ function updateCountdown(){
   document.getElementById('cd-m').textContent = pad2(m);
   document.getElementById('cd-s').textContent = pad2(s);
 }
-updateCountdown();
-setInterval(updateCountdown, 1000);
+
+// Try API first, then localStorage, then default
+fetch('/api/countdown')
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    countdownDate = resolveDate(data.date);
+    if (countdownDate) localStorage.setItem('cv_launch_target', data.date);
+  })
+  .catch(function(){})
+  .finally(function(){
+    if (!countdownDate){
+      try{
+        countdownDate = resolveDate(localStorage.getItem('cv_launch_target'));
+      }catch(e){}
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  });
 
 /* ── Globe (Three.js) ── */
 function initGlobe(){

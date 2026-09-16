@@ -9,5 +9,8 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/api/countdown", "destination": "/api/countdown.js" }
   ]
 }
