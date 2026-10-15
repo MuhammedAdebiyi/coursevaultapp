@@ -17,7 +17,7 @@ try{
    Fetches the launch date from /api/countdown (shared across all visitors).
    Falls back to localStorage, then to October 20, 2026.
 ────────────────────────────────────────────*/
-var DEFAULT_LAUNCH = '2026-10-20T00:00:00';
+var DEFAULT_LAUNCH = '2026-10-24T12:00:00';
 var countdownDate = null;
 
 function pad2(n){ return String(n).padStart(2,'0'); }

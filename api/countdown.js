@@ -1,4 +1,4 @@
-const DEFAULT_DATE = '2026-10-20T00:00:00';
+const DEFAULT_DATE = '2026-10-24T12:00:00';
 const REPO = 'MuhammedAdebiyi/coursevaultapp';
 const FILE_PATH = 'countdown.json';
 const PASSCODE = '002160';
