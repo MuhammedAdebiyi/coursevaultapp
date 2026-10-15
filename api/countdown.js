@@ -1,5 +1,5 @@
 const DEFAULT_DATE = '2026-10-20T00:00:00';
-const REPO = 'MuhammedAadebiyi/coursevaultapp';
+const REPO = 'MuhammedAdebiyi/coursevaultapp';
 const FILE_PATH = 'countdown.json';
 const PASSCODE = '002160';
 
@@ -72,7 +72,8 @@ export default async function handler(req, res) {
 
       if (!res2.ok) {
         const err = await res2.json();
-        return res.status(500).json({ error: err.message || 'Failed to update file' });
+        const detail = err.message || res2.statusText;
+        return res.status(500).json({ error: `GitHub API: ${detail}` });
       }
 
       return res.status(200).json({ success: true, date });
